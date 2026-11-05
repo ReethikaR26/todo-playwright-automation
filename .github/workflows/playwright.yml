@@ -16,10 +16,17 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
+      
+      - name: Checkout Todo app
+        run: git clone https://github.com/ReethikaR26/toDo-Application.git "../ToDo app/todo-app"
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Install Todo app dependencies
+        working-directory: ../ToDo app/todo-app
+        run: npm install
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
