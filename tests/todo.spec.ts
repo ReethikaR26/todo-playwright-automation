@@ -29,11 +29,10 @@ test.describe('Todo Page',()=> {
         
         await todoPage.addTodo("Write tests");
         
-        const playwrighttodo = todoPage.getTodo('Learn Playwright');
         const teststodo = todoPage.getTodo('Write tests');
-        await playwrighttodo.getByRole('button',{name : "Delete"}).click();
+        await todoPage.deleteTodo("Learn Playwright");
         
-        await expect(playwrighttodo).toHaveCount(0);
+        await expect(todoPage.getTodo("Learn Playwright")).toHaveCount(0);
         await expect(teststodo).toContainText('Write tests');
     })
 
@@ -78,15 +77,18 @@ test.describe('Todo Page',()=> {
         });
 
     test('should not add an empty todo', async ({ page }) => {
-        await page.getByRole('button', { name: 'Add' }).click();
+        const todoPage = new TodoPage(page);
+        await todoPage.addButton.click();
+        
         await expect(page.locator('.todo-list .todo-item')).toHaveCount(0);
         //await expect(page.getByRole('listitem')).toHaveCount(0);
     });
 
     test('should not add a whitespace-only todo', async ({ page }) => {
-        await page.getByPlaceholder('Enter new to-do item').fill('   ');
-        await page.getByRole('button', { name: 'Add' }).click();
+        const todoPage = new TodoPage(page);
 
+        await todoPage.todoInput.fill('   ');
+        await todoPage.addButton.click();
         await expect(page.getByRole('listitem')).toHaveCount(0);
     });
 
