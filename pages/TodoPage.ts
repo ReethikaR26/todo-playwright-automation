@@ -5,7 +5,7 @@ export class TodoPage {
     readonly addButton : Locator;
     
     constructor(private page: Page) {
-        this.todoInput = this.page.getByPlaceholder('Enter Todo');
+        this.todoInput = this.page.getByPlaceholder('Enter new to-do item');
         this.addButton = this.page.getByRole('button',{name : 'Add'});
     }
 

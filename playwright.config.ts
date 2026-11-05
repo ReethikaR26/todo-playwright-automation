@@ -73,8 +73,8 @@ export default defineConfig({
   /* Run your local dev server before starting the tests */
   webServer: {
      command: 'npm run dev',
-     cwd: '../practice_projects/playwright-todo',
-     url: 'http://localhost:5173',
+     cwd: '../ToDo app/todo-app',
+     url: 'http://localhost:5173/todos',
     reuseExistingServer: !process.env.CI,
    },
 });

@@ -2,10 +2,16 @@ import {test, expect} from '@playwright/test';
 import { TodoPage } from '../pages/TodoPage';
 
 
+
 test.describe('Todo Page',()=> {
+    test.beforeEach(async ({ page }) => {
+        await page.goto('/todos');
+        await page.evaluate(() => localStorage.clear());
+        await page.reload();
+    });
 
     test('user can add todos', async ({page})=>{
-        await page.goto('/');
+        
         const todoPage= new TodoPage(page);
 
         await todoPage.addTodo("Learn Playwright");
@@ -14,13 +20,10 @@ test.describe('Todo Page',()=> {
 
         await expect(todoPage.getTodo('Write tests')).toContainText('Write tests');
 
-
-        //await expect(page.getByRole('listitem', {name: 'Learn Playwright'})).toContainText('Learn Playwright');
-        //await expect(page.getByRole('listitem',{name: 'Write tests'})).toHaveText('Write tests');
     });
 
     test('user can delete a todo', async ({ page }) => {
-        await page.goto('/');
+        
         const todoPage= new TodoPage(page);
         await todoPage.addTodo("Learn Playwright");
         
@@ -35,7 +38,7 @@ test.describe('Todo Page',()=> {
     })
 
     test('check form behaviour', async ({ page }) => {
-        await page.goto('/');
+        
         const todoPage = new TodoPage(page);
         await todoPage.todoInput.fill("Learn Playwright");
         await expect(todoPage.todoInput).toHaveValue("Learn Playwright");
@@ -46,14 +49,14 @@ test.describe('Todo Page',()=> {
     })
 
     test('input clears after todo is added', async ({ page })=>{
-        await page.goto('/');
+        
         const todoPage = new TodoPage(page);
         await todoPage.addTodo('Learn playwright');
         await expect(todoPage.todoInput).toHaveValue("");
     })
 
     test('user can add todo by pressing enter', async ({page})=>{
-        await page.goto('/');
+        
         const todoPage = new TodoPage(page);
         await todoPage.todoInput.fill("Learn Playwright");
         await todoPage.todoInput.press('Enter');
@@ -61,4 +64,64 @@ test.describe('Todo Page',()=> {
         await expect(todoPage.getTodo('Learn Playwright')).toContainText('Learn Playwright');
     })
 
+    test('should keep a todo after page reload', async ({ page }) => {
+        const todoPage = new TodoPage(page);
+        const todoText = 'Learn Playwright';
+
+        await todoPage.addTodo(todoText);
+
+        await expect(todoPage.getTodo(todoText)).toContainText(todoText);
+
+        await page.reload();
+
+        await expect(todoPage.getTodo(todoText)).toContainText(todoText);
+        });
+
+    test('should not add an empty todo', async ({ page }) => {
+        await page.getByRole('button', { name: 'Add' }).click();
+        await expect(page.locator('.todo-list .todo-item')).toHaveCount(0);
+        //await expect(page.getByRole('listitem')).toHaveCount(0);
+    });
+
+    test('should not add a whitespace-only todo', async ({ page }) => {
+        await page.getByPlaceholder('Enter new to-do item').fill('   ');
+        await page.getByRole('button', { name: 'Add' }).click();
+
+        await expect(page.getByRole('listitem')).toHaveCount(0);
+    });
+
+    test('active filter shows only incomplete todos', async ({page}) => {
+        const todoPage = new TodoPage(page);
+        await todoPage.addTodo("Learn Playwright");
+        await todoPage.addTodo("Learn Git");
+        //await todoPage.getTodo("Learn Playwright").getByRole('checkbox').check();
+        await todoPage.getTodo("Learn Playwright").locator('.todo-checkbox-lofi').click();
+        await expect(todoPage.getTodo("Learn Playwright").getByRole('checkbox')).toBeChecked();
+        const activeFilter = page.getByRole('button', {name: 'Active'});
+        await activeFilter.click();
+        await expect(todoPage.getTodo("Learn Git")).toBeVisible();
+        await expect(todoPage.getTodo("Learn Playwright")).toHaveCount(0);
+    });
+
+    test('completed filter shows only completed todos', async ({page}) => {
+        const todoPage = new TodoPage(page);
+        await todoPage.addTodo("Learn Playwright");
+        await todoPage.addTodo("Learn Git");
+        await todoPage.getTodo("Learn Playwright").locator('.todo-checkbox-lofi').click();
+        await expect(todoPage.getTodo("Learn Playwright").getByRole('checkbox')).toBeChecked();
+        await page.getByRole('button', {name: 'Completed'}).click();
+        await expect(todoPage.getTodo("Learn Playwright")).toBeVisible();
+        await expect(todoPage.getTodo("Learn Git")).toHaveCount(0);
+    });
+
+    test('all filter shows both completed and active todos', async ({page}) => {
+        const todoPage = new TodoPage(page);
+        await todoPage.addTodo("Learn Playwright");
+        await todoPage.addTodo("Learn Git");
+        await todoPage.getTodo("Learn Playwright").locator('.todo-checkbox-lofi').click();
+        await expect(todoPage.getTodo("Learn Playwright").getByRole('checkbox')).toBeChecked();
+        await page.getByRole('button', {name: 'all'}).click();
+        await expect(todoPage.getTodo("Learn Playwright")).toBeVisible();
+        await expect(todoPage.getTodo("Learn Git")).toBeVisible();
+    });
 })
