@@ -120,7 +120,8 @@ test.describe('Todo Page',()=> {
         await todoPage.addTodo("Learn Git");
         await todoPage.getTodo("Learn Playwright").locator('.todo-checkbox-lofi').click();
         await expect(todoPage.getTodo("Learn Playwright").getByRole('checkbox')).toBeChecked();
-        await page.getByRole('button', {name: 'all'}).click();
+        await page.getByRole('button', {name: 'Completed'}).click();
+        await page.getByRole('button', {name: 'All'}).click();
         await expect(todoPage.getTodo("Learn Playwright")).toBeVisible();
         await expect(todoPage.getTodo("Learn Git")).toBeVisible();
     });
