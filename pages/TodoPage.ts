@@ -21,4 +21,13 @@ export class TodoPage {
         const todo = this.getTodo(text);
         await todo.getByRole('button', {name: 'Delete'}).click();
     }
+
+    async completeTodo(text: string) {
+    const todo = this.getTodo(text);
+    await todo.locator('.todo-checkbox-lofi').click();
+}
+
+    async selectFilter(filter: 'All' | 'Active' | 'Completed') {
+        await this.page.getByRole('button', { name: filter }).click();
+    }
 }

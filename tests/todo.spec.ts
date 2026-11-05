@@ -94,11 +94,10 @@ test.describe('Todo Page',()=> {
         const todoPage = new TodoPage(page);
         await todoPage.addTodo("Learn Playwright");
         await todoPage.addTodo("Learn Git");
-        //await todoPage.getTodo("Learn Playwright").getByRole('checkbox').check();
-        await todoPage.getTodo("Learn Playwright").locator('.todo-checkbox-lofi').click();
+        await todoPage.completeTodo("Learn Playwright");
         await expect(todoPage.getTodo("Learn Playwright").getByRole('checkbox')).toBeChecked();
-        const activeFilter = page.getByRole('button', {name: 'Active'});
-        await activeFilter.click();
+        
+        await todoPage.selectFilter("Active");
         await expect(todoPage.getTodo("Learn Git")).toBeVisible();
         await expect(todoPage.getTodo("Learn Playwright")).toHaveCount(0);
     });
@@ -107,9 +106,9 @@ test.describe('Todo Page',()=> {
         const todoPage = new TodoPage(page);
         await todoPage.addTodo("Learn Playwright");
         await todoPage.addTodo("Learn Git");
-        await todoPage.getTodo("Learn Playwright").locator('.todo-checkbox-lofi').click();
+        await todoPage.completeTodo("Learn Playwright");
         await expect(todoPage.getTodo("Learn Playwright").getByRole('checkbox')).toBeChecked();
-        await page.getByRole('button', {name: 'Completed'}).click();
+        await todoPage.selectFilter("Completed");
         await expect(todoPage.getTodo("Learn Playwright")).toBeVisible();
         await expect(todoPage.getTodo("Learn Git")).toHaveCount(0);
     });
@@ -118,10 +117,10 @@ test.describe('Todo Page',()=> {
         const todoPage = new TodoPage(page);
         await todoPage.addTodo("Learn Playwright");
         await todoPage.addTodo("Learn Git");
-        await todoPage.getTodo("Learn Playwright").locator('.todo-checkbox-lofi').click();
+        await todoPage.completeTodo("Learn Playwright");
         await expect(todoPage.getTodo("Learn Playwright").getByRole('checkbox')).toBeChecked();
-        await page.getByRole('button', {name: 'Completed'}).click();
-        await page.getByRole('button', {name: 'All'}).click();
+        await todoPage.selectFilter("Completed");
+        await todoPage.selectFilter("All");
         await expect(todoPage.getTodo("Learn Playwright")).toBeVisible();
         await expect(todoPage.getTodo("Learn Git")).toBeVisible();
     });
@@ -131,7 +130,7 @@ test.describe('Todo Page',()=> {
         await todoPage.addTodo("Learn Playwright");
         await todoPage.addTodo("Learn Git");
         await expect(page.getByText('2 tasks remaining')).toBeVisible();
-        await todoPage.getTodo("Learn Playwright").locator('.todo-checkbox-lofi').click();
+        await todoPage.completeTodo("Learn Playwright");
         await expect(page.getByText('1 task remaining')).toBeVisible();
     });
 
