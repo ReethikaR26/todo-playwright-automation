@@ -125,4 +125,22 @@ test.describe('Todo Page',()=> {
         await expect(todoPage.getTodo("Learn Playwright")).toBeVisible();
         await expect(todoPage.getTodo("Learn Git")).toBeVisible();
     });
+
+    test('remaining todos count updates when a todo is completed', async ( {page} ) => {
+        const todoPage = new TodoPage(page);
+        await todoPage.addTodo("Learn Playwright");
+        await todoPage.addTodo("Learn Git");
+        await expect(page.getByText('2 tasks remaining')).toBeVisible();
+        await todoPage.getTodo("Learn Playwright").locator('.todo-checkbox-lofi').click();
+        await expect(page.getByText('1 task remaining')).toBeVisible();
+    });
+
+    test('remaining todos count updates when a todo is deleted', async ( {page} ) => {
+        const todoPage = new TodoPage(page);
+        await todoPage.addTodo("Learn Playwright");
+        await todoPage.addTodo("Learn Git");
+        await expect(page.getByText('2 tasks remaining')).toBeVisible();
+        await todoPage.deleteTodo("Learn Playwright");
+        await expect(page.getByText('1 task remaining')).toBeVisible();
+    });
 })
